@@ -281,6 +281,12 @@ impl Build {
         // loading system certificates so only disable it on Android.
         if target.contains("android") {
             configure.arg("no-stdio");
+            // NDK r26 (LLVM 17) does not support AVX-512 SM3/SM4 instructions
+            // used in OpenSSL's x86_64 assembly. Disable those algorithms'
+            // assembly optimisations to avoid assembler errors on all Android
+            // targets (the C fallbacks are used instead, which is fine for
+            // mobile use cases).
+            configure.arg("no-sm3").arg("no-sm4");
         }
 
         if target.contains("msvc") {
